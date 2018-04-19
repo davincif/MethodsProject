@@ -1,20 +1,25 @@
 from sympy.core import sympify
+from sympy import lambdify
+
+dydx = None
+var_qtd = []
 
 #x + 1 + y**3 - 2*x
 def main():
+	global dydx
+	global var_qtd
+
 	#read function
-	eq = None
-	var_qtd = []
 	while True:
 		try :
 			aux = sympify('aux')
 			print("dy/dx = ", end="")
-			eq = sympify(input(), evaluate=True)
-			for symb in eq.atoms():
+			dydx = sympify(input(), evaluate=True)
+			for symb in dydx.atoms():
 				if(type(symb) == type(aux)):
 					var_qtd += [symb]
 			print('\nWhat was read:')
-			print('Expression: ' + str(eq))
+			print('Expression: ' + str(dydx))
 			print('Identified variables: ' + str(var_qtd), end='\n\n')
 
 			break
@@ -23,22 +28,48 @@ def main():
 			print("Try again")
 
 	#run methods
-	# euler(eq, )
+	methods = {}
+	methods['euler'] = euler(0.025, 1.1, 1, 1)
+	print(methods)
 
+def euler(h, hf, hi, yhi):
+	global dydx
+	global var_qtd
 
-if __name__ == '__main__':
-	main()
-
-def euler(dydx, h, hf, hi, yhi):
 	yn = yhi
 	hn = hi
 	yvar = sympify('y')
-	aux = None
+	aux = dydx
 	while(hn < hf):
 		hn += h
 		for variable in var_qtd:
 			if(variable == yvar):
-				aux = dydx.subs(variable, yn)
+				aux = aux.subs(variable, yn).evalf()
 			else:
-				aux = dydx.subs(variable, hn)
-		y = yn + h*aux
+				aux = aux.subs(variable, hn).evalf()
+		yn = yn + h*aux
+
+	return yn
+
+def eulerMod():
+	pass
+
+def eulerBackward():
+	pass
+
+def rungeKutta():
+	pass
+
+def adamBashford():
+	pass
+
+def adamMoulton():
+	pass
+
+def difInv():
+	#Diferenciação Inversa
+	pass
+
+
+if __name__ == '__main__':
+	main()
