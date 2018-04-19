@@ -2,25 +2,28 @@ from sympy.core import sympify
 from sympy import lambdify
 
 dydx = None
-var_qtd = []
+Y = None
+X = None
 
 #x + 1 + y**3 - 2*x
 def main():
 	global dydx
-	global var_qtd
+	global mvar
 
 	#read function
 	while True:
 		try :
-			aux = sympify('aux')
+			Y = sympify('y')
 			print("dy/dx = ", end="")
 			dydx = sympify(input(), evaluate=True)
+			if (len(dydx.atoms()) > 2):
+				raise("There must be 2 variables at maximum")
 			for symb in dydx.atoms():
-				if(type(symb) == type(aux)):
-					var_qtd += [symb]
-			print('\nWhat was read:')
+				if(symb == Y):
+					Y = symb
+				else:
+					X = symb
 			print('Expression: ' + str(dydx))
-			print('Identified variables: ' + str(var_qtd), end='\n\n')
 
 			break
 		except ValueError as exp:
@@ -29,33 +32,47 @@ def main():
 
 	#run methods
 	methods = {}
-	methods['euler'] = euler(0.025, 1.1, 1, 1)
+	methods['euler'] = euler(6, 0.05, 0, 1, funczinha)
+	methods['eulerBackward'] = eulerBackward(6, 0.05, 0, 1, funczinha)
+	methods['eulerMod'] = eulerMod(16, 0.025, 0, 1, funczinha)
 	print(methods)
 
-def euler(h, hf, hi, yhi):
-	global dydx
-	global var_qtd
+def funczinha(t, y):
+	# aux = aux.subs({mvar[0]: hn, mvar[1]: }).evalf()
+	return 1 - t + 4*y
 
+def euler(qtd, h, hi, yhi, func):
 	yn = yhi
-	hn = hi
-	yvar = sympify('y')
-	aux = dydx
-	while(hn < hf):
-		hn += h
-		for variable in var_qtd:
-			if(variable == yvar):
-				aux = aux.subs(variable, yn).evalf()
-			else:
-				aux = aux.subs(variable, hn).evalf()
-		yn = yn + h*aux
+	tn = hi
+	while(qtd > 0):
+		yn = yn + h*func(tn, yn)
+		tn += h
+		qtd -= 1
 
 	return yn
 
-def eulerMod():
-	pass
+def eulerBackward(qtd, h, hi, yhi, func):
+	yn = yhi
+	tn = hi
+	while(qtd > 0):
+		print(tn, "|", yn)
+		byn = yn + h*func(tn, yn)
+		yn = yn + h*func(tn+h, byn)
+		tn += h
+		qtd -= 1
 
-def eulerBackward():
-	pass
+	return yn
+
+def eulerMod(qtd, h, hi, yhi, func):
+	yn = yhi
+	tn = hi
+	while(qtd > 0):
+		byn = yn + h*func(tn, yn)
+		yn = yn + (h/2)*(func(tn, yn) + func(tn+h, byn))
+		tn += h
+		qtd -= 1
+
+	return yn
 
 def rungeKutta():
 	pass
