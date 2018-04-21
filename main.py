@@ -13,63 +13,32 @@ dydt = None #y'
 Y = None #y
 T = None #t
 
+#1 - t + 4*y
 def main():
 	global dydt
-	global mvar
 	global Y
 	global T
 
-	qtdvar = 0
-
-	#read function
-	while True:
-		try :
-			Y = sympify('y')
-			T = sympify('t')
-			print("dy/dx = ", end="")
-			dydt = sympify(input(), evaluate=True)
-
-			for symb in dydt.atoms():
-				if(symb == Y):
-					Y = symb
-				elif(symb == T):
-					T = symb
-
-				if(type(symb) == type(Y)):
-					qtdvar += 1
-
-			# 1-t+4*y
-			if (qtdvar < 0 or qtdvar > 2):
-				raise Exception("There must be >= 0 and <= 2 variables at maximum: this expretion has " + str(qtdvar))
-
-			print('Expression: ' + str(dydt))
-
-			break
-		except Exception as exp:
-		# except ValueError as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+	dydt, Y, T, y0, yy0, h, steps = readEntry()
 
 	#run methods
 	methods = {}
-	methods['euler'] = euler(6, 0.05, 0, 1.0, funczinha)
-	methods['eulerBackward'] = eulerBackward(6, 0.05, 0, 1.0, funczinha)
-	methods['eulerMod'] = eulerMod(16, 0.025, 0, 1.0, funczinha)
-	methods['rungeKutta'] = rungeKutta(16, 0.025, 0, 1.0, funczinha)
-	methods['adamBashford_2'] = adamBashford_2(16, 0.025, 0, 1.0, funczinha, rungeKutta)
-	methods['adamBashford_3'] = adamBashford_3(16, 0.025, 0, 1.0, funczinha, rungeKutta)
-	methods['adamBashford_4'] = adamBashford_4(16, 0.025, 0, 1.0, funczinha, rungeKutta)
+	methods['euler'] = euler(steps, h, y0, yy0, difeq)
+	methods['eulerBackward'] = eulerBackward(steps, h, y0, yy0, difeq)
+	methods['eulerMod'] = eulerMod(steps, h, y0, yy0, difeq)
+	methods['rungeKutta'] = rungeKutta(steps, h, y0, yy0, difeq)
+	methods['adamBashford_2'] = adamBashford_2(steps, h, y0, yy0, difeq, rungeKutta)
+	methods['adamBashford_3'] = adamBashford_3(steps, h, y0, yy0, difeq, rungeKutta)
+	methods['adamBashford_4'] = adamBashford_4(steps, h, y0, yy0, difeq, rungeKutta)
 	print(json.dumps(methods, indent=4)) #sort_keys=True
 
-def funczinha(t, y):
+#differential equation
+def difeq(t, y):
 	global dydt
-	global mvar
 	global Y
 	global T
 
-	#1 - t + 4*y
-	aux = dydt.subs({Y: y, T: t}).evalf()
-	return aux
+	return dydt.subs({Y: y, T: t}).evalf()
 
 def euler(qtd, h, hi, yhi, func):
 	yn = yhi
@@ -197,6 +166,82 @@ def difInv():
 	#Diferenciação Inversa
 	pass
 
+
+def readEntry():
+	#read the differential equation
+	while True:
+		try :
+			Y = sympify('y')
+			T = sympify('t')
+			print("Type the Differential Equation")
+			print("dy/dx = ", end="")
+			dydt = sympify(input(), evaluate=True)
+
+			qtdvar = 0
+			for symb in dydt.atoms():
+				if(symb == Y):
+					Y = symb
+				elif(symb == T):
+					T = symb
+
+				if(type(symb) == type(Y)):
+					qtdvar += 1
+
+			# 1-t+4*y
+			if (qtdvar < 0 or qtdvar > 2):
+				raise Exception("There must be >= 0 and <= 2 variables at maximum: this expretion has " + str(qtdvar))
+
+			print('Expression: ' + str(dydt))
+
+			break
+		except Exception as exp:
+			print(exp, end='\n\n')
+			print("Try again")
+
+	#read the y0 of the inicial value (PVI, in portuguese)
+	while True:
+		try:
+			print('Type the Inicial Value')
+			print('initial y = ', end='')
+			y0 = float(input())
+			break
+		except Exception as exp:
+			print(exp, end='\n\n')
+			print("Try again")
+
+	#read the y(y0) of the inicial value (PVI, in portuguese)
+	while True:
+		try:
+			print('y(' + str(y0) + ') = ', end='')
+			yy0 = float(input())
+			break
+		except Exception as exp:
+			print(exp, end='\n\n')
+			print("Try again")
+
+	#read the step size: h
+	while True:
+		try:
+			print("Type the steps size. The 'h'")
+			print('h = ', end='')
+			h = float(input())
+			break
+		except Exception as exp:
+			print(exp, end='\n\n')
+			print("Try again")
+
+	#read the step amount
+	while True:
+		try:
+			print("Type the steps amount")
+			print('steps = ', end='')
+			steps = float(input())
+			break
+		except Exception as exp:
+			print(exp, end='\n\n')
+			print("Try again")
+
+	return dydt, Y, T, y0, yy0, h, steps
 
 if __name__ == '__main__':
 	main()
