@@ -1,3 +1,31 @@
-virtualenv -p python3 virEnv
-source virEnv/bin/activate
-pip install -r requirements.txt
+#!/usr/bin/env bash
+
+if [[ ${BASH_VERSINFO[0]} -le 2 ]]; then
+	echo 'No BASH_SOURCE array variable'
+	echo "Can't garantee that this script will work properly."
+	echo "Please read the documentation or contact the author"
+	echo "author: Leonardo Da Vinci (davincif, LDaVinciF@gmail.com)"
+else
+	if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+		echo "REMEMBER: this script must be ran with the 'source' command"
+		echo "Any doubt? Read the README file"
+	else
+		echo "script ${BASH_SOURCE[0]} is being sourced..."
+		echo "to deactivate type 'deactivate' in your terminal."
+		echo ""
+
+		VIRENVDIR='virEnv'
+
+		if [ ! -d "$VIRENVDIR" ]; then
+			# Control will enter here if $VIRENVDIR doesn't exist.
+			virtualenv -p python3 $VIRENVDIR
+			source $VIRENVDIR/bin/activate
+			pip install -r requirements.txt
+		else
+			# Control will enter here if $VIRENVDIR exist.
+			source $VIRENVDIR/bin/activate
+		fi
+
+		echo "\/ here, check if is written the string '($VIRENVDIR)'"
+	fi
+fi

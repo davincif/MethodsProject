@@ -1,10 +1,31 @@
-# MethodsProject
-Professor, para rodar o programa apenas certifique-se de possuir:
-1. um terminal capaz de executar shell scripts
-2. python versão 3.5 ou superior instalado e atendendo por "python3"
-3. virtualenv installado e capaz de criar ambientes para python3
 
-Para rodar o projeto:
-1. navege pelo terminal até o diretório onde o projeto estiver.
-2. execute o script "RUNME" com o commando "source RUNME"
-3. execute a main com o comando "python main.py"
+# MethodsProject
+
+#### Professor,
+##### To run this program only make sure of having:
+1. A terminal capable of executing shell scripts (preferencially **bash**).
+2. Python version 3.5 or superior installed and being called by ```python3``` command.
+3. The virtualenv installed and capable of creating environment for ```python3```.
+
+##### To set the environment
+1. Navigate through the terminal to the directory where the project is.
+2. execute the script "RUNME" with the command
+```bash
+source RUNME
+```
+
+**NOTE**: if everything runs just nicely, in front of you line in the command line will be the string "(virEnv)", indicating that you have the virtualenv environment activated.
+
+##### To run the project:
+1. execute the main with the command
+```bash
+python main.py
+```
+
+<br>
+<hr>
+<br>
+
+PS.: the RUNME script was tested only in **bash**, so if you willing to try it in another shell, you're on your own.
+
+PPS.: Changes are that the  **ksh** shell would work just fine too.
