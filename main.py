@@ -20,13 +20,13 @@ from enumMethods import MethodsType
 
 #1 - t + 4*y
 def main():
-	meth = {}
+	meth = None
 
 	while True:
 		op = 'n' #option
 
 		#read what method the user wants to use
-		mop, dop = methodMenu() #mop = method option | dop = degree option
+		mop, dop, mop2 = methodMenu() #mop = method option | dop = degree option
 		if(mop == None and dop == None):
 			print('\nthank you, hope you enjoyed!')
 			break
@@ -42,10 +42,12 @@ def main():
 
 		if(op == 'n'):
 			#read user entry about the method
+			meth = {}
 			methods.dydt, methods.Y, methods.T, y0, yy0, h, steps = readEntry()
 
 		#run choices
-		runChoices(meth, mop, dop, steps, h, y0, yy0)
+		runChoices(meth, mop, mop2, dop, steps, h, y0, yy0)
+		print(json.dumps(meth, indent=4)) #sort_keys=True
 
 
 def readEntry():
@@ -127,76 +129,14 @@ def readEntry():
 def methodMenu():
 	type = None
 	degree = 0
+	type2 = None
 
 	while True:
-		print("type the name of the number of the option")
-		print("What method do you wanna run?")
-		print("0. All")
-		print("1. Euler")
-		print("2. Euler Backward")
-		print("3. Improved Euler")
-		print("4. Runge-Kutta")
-		print("5. Adams Bashford")
-		print("6. Adams Moulton")
-		print("7. Inverse Transform Sampling (ITS)")
-		print("99. quit (q)")
-		op = input()
+		op, valid = printMenu([])
+		type = getChosenMethod(op, valid)
 
-		try:
-			op = int(float(op))
-
-			if(op == 0):
-				type = MethodsType.ALL
-			elif(op == 1):
-				type = MethodsType.EULER
-			elif(op == 2):
-				type = MethodsType.EULERBACKWARD
-			elif(op == 3):
-				type = MethodsType.EULERMOD
-			elif(op == 4):
-				type = MethodsType.RUNGEKUTTA
-			elif(op == 5):
-				type = MethodsType.ADAMBASHFORD
-			elif(op == 6):
-				type = MethodsType.ADAMOULTON
-			elif(op == 7):
-				type = MethodsType.DIFINV
-			elif(op == 99):
-				type = degree = None
-			else:
-				raise IndexError('Option out of range')
-
+		if(not type is None or degree == None):
 			break
-		except IndexError as exp:
-			print(exp)
-			print("Try again", end='\n\n')
-		except Exception as exp:
-			op = op.upper()
-
-			if(op == "ALL"):
-				type = MethodsType.ALL
-			elif(op == "EULER"):
-				type = MethodsType.EULER
-			elif(op == "EULER BACKWARD" or op == "BACKWARD EULER" or op == "B EULER" or op == "EULER B"):
-				type = MethodsType.EULERBACKWARD
-			elif(op == "EULER IMPROVED" or op == "IMPROVED EULER" or op == "EULER I" or op == "I EULER"):
-				type = MethodsType.EULERMOD
-			elif(op == "RUNGEKUTTA" or op == "RUNG-KUTTA" or op == "RUNG KUTTA"):
-				type = MethodsType.RUNGEKUTTA
-			elif(op == "ADAMBASHFORD" or op == "ADAM BASHFORD" or op == "ADAM B"):
-				type = MethodsType.ADAMBASHFORD
-			elif(op == "ADAMOULTON" or op == "ADA MOULTON" or op == "ADAM M"):
-				type = MethodsType.ADAMOULTON
-			elif(op == "INVERSE TRANSFORM SAMPLING" or op == "ITS"):
-				type = MethodsType.DIFINV
-			elif(op == "QUIT" or op == "Q"):
-				type = degree = None
-			else:
-				print('Method not recognized, check your typing.')
-				print("Try again", end='\n\n')
-
-			if(not type is None or degree == None):
-				break
 
 	if(type == MethodsType.ADAMBASHFORD or type == MethodsType.ALL):
 		while True:
@@ -212,36 +152,116 @@ def methodMenu():
 					print(exp)
 					print("Try again", end='\n\n')
 
-	return type, degree
+		op, valid = printMenu([MethodsType.ALL, MethodsType.ADAMBASHFORD, 'quit'])
+		type2 = getChosenMethod(op, valid)
 
-def runChoices(dict2save, method, degree, steps, h, y0, yy0):
+	return type, degree, type2
 
-	#run chosen methods
-	if(method == MethodsType.EULER or method == MethodsType.ALL):
-		dict2save['euler'] = methods.euler(steps, h, y0, yy0)
+def runChoices(dict2save, method, method2, degree, steps, h, y0, yy0):
+	func = MethodsType.getFunction(method2, 0)
 
-	if(method == MethodsType.EULERBACKWARD or method == MethodsType.ALL):
-		dict2save['eulerBackward'] = methods.eulerBackward(steps, h, y0, yy0)
+	for meth in MethodsType.getFunction(method, degree):
+		if(MethodsType.getTypeByFunction(meth) == MethodsType.ADAMBASHFORD):
+			dict2save[MethodsType.getNameByFunction(meth)] = meth(steps, h, y0, yy0, func[0])
+		else:
+			dict2save[MethodsType.getNameByFunction(meth)] = meth(steps, h, y0, yy0)
 
-	if(method == MethodsType.EULERMOD or method == MethodsType.ALL):
-		dict2save['eulerMod'] = methods.eulerMod(steps, h, y0, yy0)
 
-	if(method == MethodsType.RUNGEKUTTA or method == MethodsType.ALL):
-		dict2save['rungeKutta'] = methods.rungeKutta(steps, h, y0, yy0)
+def getChosenMethod(userStr, valid):
+	type = None
 
-	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and degree == 0):
-		dict2save['adamBashford_0'] = methods.euler(steps, h, y0, yy0)
+	try:
+		userStr = int(float(userStr))
 
-	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 2 or degree == -1)):
-		dict2save['adamBashford_2'] = methods.adamBashford_2(steps, h, y0, yy0, methods.rungeKutta)
+		if(userStr in valid):
+			if(userStr == 0):
+				type = MethodsType.ALL
+			elif(userStr == 1):
+				type = MethodsType.EULER
+			elif(userStr == 2):
+				type = MethodsType.EULERBACKWARD
+			elif(userStr == 3):
+				type = MethodsType.EULERMOD
+			elif(userStr == 4):
+				type = MethodsType.RUNGEKUTTA
+			elif(userStr == 5):
+				type = MethodsType.ADAMBASHFORD
+			elif(userStr == 6):
+				type = MethodsType.ADAMOULTON
+			elif(userStr == 7):
+				type = MethodsType.DIFINV
+			elif(userStr == 99):
+				type = degree = None
+			else:
+				raise IndexError('Option out of range')
+		else:
+			raise IndexError('Option not avaliable')
 
-	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 3 or degree == -1)):
-		dict2save['adamBashford_3'] = methods.adamBashford_3(steps, h, y0, yy0, methods.rungeKutta)
+	except IndexError as exp:
+		print(exp)
+		print("Try again", end='\n\n')
+	except Exception as exp:
+		userStr = userStr.upper()
 
-	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 4 or degree == -1)):
-		dict2save['adamBashford_4'] = methods.adamBashford_4(steps, h, y0, yy0, methods.rungeKutta)
+		if(userStr == "ALL"):
+			type = MethodsType.ALL
+		elif(userStr == "EULER"):
+			type = MethodsType.EULER
+		elif(userStr == "EULER BACKWARD" or userStr == "BACKWARD EULER" or userStr == "B EULER" or userStr == "EULER B"):
+			type = MethodsType.EULERBACKWARD
+		elif(userStr == "EULER IMPROVED" or userStr == "IMPROVED EULER" or userStr == "EULER I" or userStr == "I EULER"):
+			type = MethodsType.EULERMOD
+		elif(userStr == "RUNGEKUTTA" or userStr == "RUNG-KUTTA" or userStr == "RUNG KUTTA"):
+			type = MethodsType.RUNGEKUTTA
+		elif(userStr == "ADAMBASHFORD" or userStr == "ADAM BASHFORD" or userStr == "ADAM B"):
+			type = MethodsType.ADAMBASHFORD
+		elif(userStr == "ADAMOULTON" or userStr == "ADA MOULTON" or userStr == "ADAM M"):
+			type = MethodsType.ADAMOULTON
+		elif(userStr == "INVERSE TRANSFORM SAMPLING" or userStr == "ITS"):
+			type = MethodsType.DIFINV
+		elif(userStr == "QUIT" or userStr == "Q"):
+			type = degree = None
+		else:
+			print('Method not recognized, check your typing.')
+			print("Try again", end='\n\n')
 
-	print(json.dumps(dict2save, indent=4)) #sort_keys=True
+	return type
+
+def printMenu(notshow):
+	valid = []
+
+	print("type the name of the number of the option")
+	print("What method do you wanna run?")
+	if(not MethodsType.ALL in notshow):
+		print("0. All")
+		valid += [0]
+	if(not MethodsType.EULER in notshow):
+		print("1. Euler")
+		valid += [1]
+	if(not MethodsType.EULERBACKWARD in notshow):
+		print("2. Euler Backward")
+		valid += [2]
+	if(not MethodsType.EULERMOD in notshow):
+		print("3. Improved Euler")
+		valid += [3]
+	if(not MethodsType.RUNGEKUTTA in notshow):
+		print("4. Runge-Kutta")
+		valid += [4]
+	if(not MethodsType.ADAMBASHFORD in notshow):
+		print("5. Adams Bashford")
+		valid += [5]
+	if(not MethodsType.ADAMOULTON in notshow):
+		print("6. Adams Moulton")
+		valid += [6]
+	if(not MethodsType.DIFINV in notshow):
+		print("7. Inverse Transform Sampling (ITS)")
+		valid += [7]
+	if(not 'quit' in notshow):
+		print("99. quit (q)")
+		valid += [99]
+	op = input()
+
+	return op, valid
 
 if __name__ == '__main__':
 	main()
