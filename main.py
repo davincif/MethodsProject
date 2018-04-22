@@ -22,14 +22,30 @@ from enumMethods import MethodsType
 def main():
 	meth = {}
 
-	#read what method the user wants to use
-	mop, dop = methodMenu() #mop = method option | dop = degree option
+	while True:
+		op = 'n' #option
 
-	#read user entry about the method
-	methods.dydt, methods.Y, methods.T, y0, yy0, h, steps = readEntry()
+		#read what method the user wants to use
+		mop, dop = methodMenu() #mop = method option | dop = degree option
+		if(mop == None and dop == None):
+			print('\nthank you, hope you enjoyed!')
+			break
 
-	#run choices
-	runChoices(meth, mop, dop, steps, h, y0, yy0)
+		if(not methods.dydt is None):
+			op = ''
+			while(op != 'y' and op != 'n'):
+				print("Same ODE, h, y(0), y and steps?\n(y|n): ", end='')
+				op = input()
+
+				if(op != 'y' and op != 'n'):
+					print("say 'y' or 'n', for yes or no", end='\n\n')
+
+		if(op == 'n'):
+			#read user entry about the method
+			methods.dydt, methods.Y, methods.T, y0, yy0, h, steps = readEntry()
+
+		#run choices
+		runChoices(meth, mop, dop, steps, h, y0, yy0)
 
 
 def readEntry():
@@ -123,6 +139,7 @@ def methodMenu():
 		print("5. Adams Bashford")
 		print("6. Adams Moulton")
 		print("7. Inverse Transform Sampling (ITS)")
+		print("99. quit (q)")
 		op = input()
 
 		try:
@@ -144,6 +161,8 @@ def methodMenu():
 				type = MethodsType.ADAMOULTON
 			elif(op == 7):
 				type = MethodsType.DIFINV
+			elif(op == 99):
+				type = degree = None
 			else:
 				raise IndexError('Option out of range')
 
@@ -170,11 +189,13 @@ def methodMenu():
 				type = MethodsType.ADAMOULTON
 			elif(op == "INVERSE TRANSFORM SAMPLING" or op == "ITS"):
 				type = MethodsType.DIFINV
+			elif(op == "QUIT" or op == "Q"):
+				type = degree = None
 			else:
 				print('Method not recognized, check your typing.')
 				print("Try again", end='\n\n')
 
-			if(not type is None):
+			if(not type is None or degree == None):
 				break
 
 	if(type == MethodsType.ADAMBASHFORD or type == MethodsType.ALL):
