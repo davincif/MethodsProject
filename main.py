@@ -9,6 +9,8 @@ import json
 
 from sympy.core import sympify
 
+from enumMethods import MethodsType
+
 dydt = None #y'
 Y = None #y
 T = None #t
@@ -18,19 +20,16 @@ def main():
 	global dydt
 	global Y
 	global T
+	methods = {}
 
+	#read what method the user wants to use
+	mop, dop = methodMenu() #mop = method option | dop = degree option
+
+	#read user entry about the method
 	dydt, Y, T, y0, yy0, h, steps = readEntry()
 
-	#run methods
-	methods = {}
-	methods['euler'] = euler(steps, h, y0, yy0, difeq)
-	methods['eulerBackward'] = eulerBackward(steps, h, y0, yy0, difeq)
-	methods['eulerMod'] = eulerMod(steps, h, y0, yy0, difeq)
-	methods['rungeKutta'] = rungeKutta(steps, h, y0, yy0, difeq)
-	methods['adamBashford_2'] = adamBashford_2(steps, h, y0, yy0, difeq, rungeKutta)
-	methods['adamBashford_3'] = adamBashford_3(steps, h, y0, yy0, difeq, rungeKutta)
-	methods['adamBashford_4'] = adamBashford_4(steps, h, y0, yy0, difeq, rungeKutta)
-	print(json.dumps(methods, indent=4)) #sort_keys=True
+	#run choices
+	runChoices(methods, mop, dop, dydt, Y, T, y0, yy0, h, steps)
 
 #differential equation
 def difeq(t, y):
@@ -173,7 +172,7 @@ def readEntry():
 		try :
 			Y = sympify('y')
 			T = sympify('t')
-			print("Type the Differential Equation")
+			print("\nType the Differential Equation")
 			print("dy/dx = ", end="")
 			dydt = sympify(input(), evaluate=True)
 
@@ -195,8 +194,8 @@ def readEntry():
 
 			break
 		except Exception as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+			print(exp)
+			print("Try again", end='\n\n')
 
 	#read the y0 of the inicial value (PVI, in portuguese)
 	while True:
@@ -206,8 +205,8 @@ def readEntry():
 			y0 = float(input())
 			break
 		except Exception as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+			print(exp)
+			print("Try again", end='\n\n')
 
 	#read the y(y0) of the inicial value (PVI, in portuguese)
 	while True:
@@ -216,8 +215,8 @@ def readEntry():
 			yy0 = float(input())
 			break
 		except Exception as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+			print(exp)
+			print("Try again", end='\n\n')
 
 	#read the step size: h
 	while True:
@@ -227,8 +226,8 @@ def readEntry():
 			h = float(input())
 			break
 		except Exception as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+			print(exp)
+			print("Try again", end='\n\n')
 
 	#read the step amount
 	while True:
@@ -238,10 +237,124 @@ def readEntry():
 			steps = float(input())
 			break
 		except Exception as exp:
-			print(exp, end='\n\n')
-			print("Try again")
+			print(exp)
+			print("Try again", end='\n\n')
 
 	return dydt, Y, T, y0, yy0, h, steps
+
+def methodMenu():
+	type = None
+	degree = 0
+
+	while True:
+		print("type the name of the number of the option")
+		print("What method do you wanna run?")
+		print("0. All")
+		print("1. Euler")
+		print("2. Euler Backward")
+		print("3. Improved Euler")
+		print("4. Runge-Kutta")
+		print("5. Adams Bashford")
+		print("6. Adams Moulton")
+		print("7. Inverse Transform Sampling (ITS)")
+		op = input()
+
+		try:
+			op = int(float(op))
+
+			if(op == 0):
+				type = MethodsType.ALL
+			elif(op == 1):
+				type = MethodsType.EULER
+			elif(op == 2):
+				type = MethodsType.EULERBACKWARD
+			elif(op == 3):
+				type = MethodsType.EULERMOD
+			elif(op == 4):
+				type = MethodsType.RUNGEKUTTA
+			elif(op == 5):
+				type = MethodsType.ADAMBASHFORD
+			elif(op == 6):
+				type = MethodsType.ADAMOULTON
+			elif(op == 7):
+				type = MethodsType.DIFINV
+			else:
+				raise IndexError('Option out of range')
+
+			break
+		except IndexError as exp:
+			print(exp)
+			print("Try again", end='\n\n')
+		except Exception as exp:
+			op = op.upper()
+
+			if(op == "ALL"):
+				type = MethodsType.ALL
+			elif(op == "EULER"):
+				type = MethodsType.EULER
+			elif(op == "EULER BACKWARD" or op == "BACKWARD EULER" or op == "B EULER" or op == "EULER B"):
+				type = MethodsType.EULERBACKWARD
+			elif(op == "EULER IMPROVED" or op == "IMPROVED EULER" or op == "EULER I" or op == "I EULER"):
+				type = MethodsType.EULERMOD
+			elif(op == "RUNGEKUTTA" or op == "RUNG-KUTTA" or op == "RUNG KUTTA"):
+				type = MethodsType.RUNGEKUTTA
+			elif(op == "ADAMBASHFORD" or op == "ADAM BASHFORD" or op == "ADAM B"):
+				type = MethodsType.ADAMBASHFORD
+			elif(op == "ADAMOULTON" or op == "ADA MOULTON" or op == "ADAM M"):
+				type = MethodsType.ADAMOULTON
+			elif(op == "INVERSE TRANSFORM SAMPLING" or op == "ITS"):
+				type = MethodsType.DIFINV
+			else:
+				print('Method not recognized, check your typing.')
+				print("Try again", end='\n\n')
+
+			if(not type is None):
+				break
+
+	if(type == MethodsType.ADAMBASHFORD or type == MethodsType.ALL):
+		while True:
+				print('what the degree? (-1 for all)')
+				print('\ndegree = ', end='')
+
+				try:
+					degree = int(float(input()))
+					if(degree < -1 or degree > 4):
+						raise IndexError('Option out of range')
+					break
+				except Exception as exp:
+					print(exp)
+					print("Try again", end='\n\n')
+
+	return type, degree
+
+def runChoices(dict2save, method, degree, dydt, Y, T, y0, yy0, h, steps):
+
+	#run chosen methods
+	if(method == MethodsType.EULER or method == MethodsType.ALL):
+		dict2save['euler'] = euler(steps, h, y0, yy0, difeq)
+
+	if(method == MethodsType.EULERBACKWARD or method == MethodsType.ALL):
+		dict2save['eulerBackward'] = eulerBackward(steps, h, y0, yy0, difeq)
+
+	if(method == MethodsType.EULERMOD or method == MethodsType.ALL):
+		dict2save['eulerMod'] = eulerMod(steps, h, y0, yy0, difeq)
+
+	if(method == MethodsType.RUNGEKUTTA or method == MethodsType.ALL):
+		dict2save['rungeKutta'] = rungeKutta(steps, h, y0, yy0, difeq)
+
+	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and degree == 0):
+		dict2save['adamBashford_0'] = euler(steps, h, y0, yy0, difeq)
+
+	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 2 or degree == -1)):
+		dict2save['adamBashford_2'] = adamBashford_2(steps, h, y0, yy0, difeq, rungeKutta)
+
+	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 3 or degree == -1)):
+		dict2save['adamBashford_3'] = adamBashford_3(steps, h, y0, yy0, difeq, rungeKutta)
+
+	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 4 or degree == -1)):
+		dict2save['adamBashford_4'] = adamBashford_4(steps, h, y0, yy0, difeq, rungeKutta)
+
+	print(json.dumps(dict2save, indent=4)) #sort_keys=True
 
 if __name__ == '__main__':
 	main()
