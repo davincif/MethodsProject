@@ -1,169 +1,35 @@
 #python3
+
+#system imports
 import sys
 try:
 	assert sys.version_info >= (3,5)
 except Exception as exc:
 	print("you must have python version 3.5 or higher.\nCurrent is: " + str(sys.version))
 	exit()
+print('loading...', end='\n\n')
 import json
 
+#third party libraries import
 from sympy.core import sympify
 
+#local imports
+import methods
 from enumMethods import MethodsType
 
-dydt = None #y'
-Y = None #y
-T = None #t
 
 #1 - t + 4*y
 def main():
-	global dydt
-	global Y
-	global T
-	methods = {}
+	meth = {}
 
 	#read what method the user wants to use
 	mop, dop = methodMenu() #mop = method option | dop = degree option
 
 	#read user entry about the method
-	dydt, Y, T, y0, yy0, h, steps = readEntry()
+	methods.dydt, methods.Y, methods.T, y0, yy0, h, steps = readEntry()
 
 	#run choices
-	runChoices(methods, mop, dop, dydt, Y, T, y0, yy0, h, steps)
-
-#differential equation
-def difeq(t, y):
-	global dydt
-	global Y
-	global T
-
-	return dydt.subs({Y: y, T: t}).evalf()
-
-def euler(qtd, h, hi, yhi, func):
-	yn = yhi
-	tn = hi
-	table = []
-	while(qtd > 0):
-		table.append([tn, float(yn)])
-		yn = (yn + h*func(tn, yn)).evalf()
-		tn += h
-		qtd -= 1
-
-	return table
-
-def eulerBackward(qtd, h, hi, yhi, func):
-	h = float(h)
-	yn = yhi
-	tn = hi
-	table = []
-	while(qtd > 0):
-		table.append([tn, float(yn)])
-		byn = yn + h*func(tn, yn)
-		yn = yn + h*func(tn+h, byn)
-		tn += h
-		qtd -= 1
-
-	return table
-
-def eulerMod(qtd, h, hi, yhi, func):
-	yn = yhi
-	tn = hi
-	table = []
-	while(qtd > 0):
-		table.append([tn, float(yn)])
-		byn = yn + h*func(tn, yn)
-		yn = yn + 0.5*h*(func(tn, yn) + func(tn+h, byn))
-		tn += h
-		qtd -= 1
-
-	return table
-
-def rungeKutta(qtd, h, hi, yhi, func):
-	yn = yhi
-	tn = hi
-	k1 = k2 = k3 = k4 = None
-	table = []
-	while(qtd > 0):
-		table.append([tn, float(yn)])
-		k1 = func(tn, yn)
-		k2 = func(tn + 0.5*h, yn + 0.5*h*k1)
-		k3 = func(tn + 0.5*h, yn + 0.5*h*k2)
-		k4 = func(tn + h, yn + h*k3)
-		yn = yn + (h/6)*(k1 + 2*(k2+k3) + k4)
-		tn += h
-		qtd -= 1
-
-	return table
-
-def adamBashford_2(qtd, h, hi, yhi, func, meth):
-	lastp = [x[1] for x in meth(2, h, hi, yhi, func)] #lastp == last points
-	yn = yhi
-	tn0 = hi
-	tn1 = hi+h
-	table = [[tn0, lastp[0]], [tn1, lastp[1]]]
-	qtd -= 2
-	while(qtd > 0):
-		yn = lastp[1] + 0.5*h * (3*func(tn1, lastp[1]) - func(tn0, lastp[0]))
-		lastp[0] = lastp[1]
-		lastp[1] = yn
-		tn0 = tn1
-		tn1 += h
-		qtd -= 1
-		table.append([tn1, float(yn)])
-
-	return table
-
-def adamBashford_3(qtd, h, hi, yhi, func, meth):
-	lastp = [x[1] for x in meth(3, h, hi, yhi, func)] #lastp == last points
-	yn = yhi
-	tn0 = hi
-	tn1 = hi+h
-	tn2 = tn1+h
-	table = [[tn0, lastp[0]], [tn1, lastp[1]], [tn2, lastp[2]]]
-	qtd -= 3
-	while(qtd > 0):
-		yn = lastp[2] + h*(23*func(tn2, lastp[2]) - 16*func(tn1, lastp[1]) + 5*func(tn0, lastp[0]))/12
-		lastp[0] = lastp[1]
-		lastp[1] = lastp[2]
-		lastp[2] = yn
-		tn0 = tn1
-		tn1 = tn2
-		tn2 += h
-		qtd -= 1
-		table.append([tn2, float(yn)])
-
-	return table
-
-def adamBashford_4(qtd, h, hi, yhi, func, meth):
-	lastp = [x[1] for x in meth(4, h, hi, yhi, func)] #lastp == last points
-	yn = yhi
-	tn0 = hi
-	tn1 = hi+h
-	tn2 = tn1+h
-	tn3 = tn2+h
-	table = [[tn0, lastp[0]], [tn1, lastp[1]], [tn2, lastp[2]], [tn3, lastp[3]]]
-	qtd -= 4
-	while(qtd > 0):
-		yn = lastp[3] + h*(55*func(tn3, lastp[3]) - 59*func(tn2, lastp[2]) + 37*func(tn1, lastp[1]) - 9*func(tn0, lastp[0]))/24
-		lastp[0] = lastp[1]
-		lastp[1] = lastp[2]
-		lastp[2] = lastp[3]
-		lastp[3] = yn
-		tn0 = tn1
-		tn1 = tn2
-		tn2 = tn3
-		tn3 += h
-		qtd -= 1
-		table.append([tn3, float(yn)])
-
-	return table
-
-def adamMoulton():
-	pass
-
-def difInv():
-	#Diferenciação Inversa
-	pass
+	runChoices(meth, mop, dop, steps, h, y0, yy0)
 
 
 def readEntry():
@@ -327,32 +193,32 @@ def methodMenu():
 
 	return type, degree
 
-def runChoices(dict2save, method, degree, dydt, Y, T, y0, yy0, h, steps):
+def runChoices(dict2save, method, degree, steps, h, y0, yy0):
 
 	#run chosen methods
 	if(method == MethodsType.EULER or method == MethodsType.ALL):
-		dict2save['euler'] = euler(steps, h, y0, yy0, difeq)
+		dict2save['euler'] = methods.euler(steps, h, y0, yy0)
 
 	if(method == MethodsType.EULERBACKWARD or method == MethodsType.ALL):
-		dict2save['eulerBackward'] = eulerBackward(steps, h, y0, yy0, difeq)
+		dict2save['eulerBackward'] = methods.eulerBackward(steps, h, y0, yy0)
 
 	if(method == MethodsType.EULERMOD or method == MethodsType.ALL):
-		dict2save['eulerMod'] = eulerMod(steps, h, y0, yy0, difeq)
+		dict2save['eulerMod'] = methods.eulerMod(steps, h, y0, yy0)
 
 	if(method == MethodsType.RUNGEKUTTA or method == MethodsType.ALL):
-		dict2save['rungeKutta'] = rungeKutta(steps, h, y0, yy0, difeq)
+		dict2save['rungeKutta'] = methods.rungeKutta(steps, h, y0, yy0)
 
 	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and degree == 0):
-		dict2save['adamBashford_0'] = euler(steps, h, y0, yy0, difeq)
+		dict2save['adamBashford_0'] = methods.euler(steps, h, y0, yy0)
 
 	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 2 or degree == -1)):
-		dict2save['adamBashford_2'] = adamBashford_2(steps, h, y0, yy0, difeq, rungeKutta)
+		dict2save['adamBashford_2'] = methods.adamBashford_2(steps, h, y0, yy0, methods.rungeKutta)
 
 	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 3 or degree == -1)):
-		dict2save['adamBashford_3'] = adamBashford_3(steps, h, y0, yy0, difeq, rungeKutta)
+		dict2save['adamBashford_3'] = methods.adamBashford_3(steps, h, y0, yy0, methods.rungeKutta)
 
 	if((method == MethodsType.ADAMBASHFORD or method == MethodsType.ALL) and (degree == 4 or degree == -1)):
-		dict2save['adamBashford_4'] = adamBashford_4(steps, h, y0, yy0, difeq, rungeKutta)
+		dict2save['adamBashford_4'] = methods.adamBashford_4(steps, h, y0, yy0, methods.rungeKutta)
 
 	print(json.dumps(dict2save, indent=4)) #sort_keys=True
 
