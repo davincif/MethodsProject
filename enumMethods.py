@@ -38,6 +38,28 @@ class MethodsType(Enum):
 
 			if(degree == 4 or degree == -1):
 				func += [methods.adamBashford_4]
+		if(enum == MethodsType.ADAMOULTON or enum == MethodsType.ALL):
+			if(degree == 0):
+				func += [methods.eulerBackward]
+
+			if(degree == 2 or degree == -1):
+				func += [methods.adamMoulton_2]
+
+			if(degree == 3 or degree == -1):
+				func += [methods.adamMoulton_3]
+
+			if(degree == 4 or degree == -1):
+				func += [methods.adamMoulton_4]
+		if(enum == MethodsType.DIFINV or enum == MethodsType.ALL):
+			if(degree == 2 or degree == -1):
+				func += [methods.difInv]
+
+			if(degree == 3 or degree == -1):
+				func += [methods.difInv]
+
+			if(degree == 4 or degree == -1):
+				func += [methods.difInv]
+
 
 		return func
 
@@ -56,9 +78,13 @@ class MethodsType(Enum):
 			return 'adamBashford_3'
 		elif(func == methods.adamBashford_4):
 			return 'adamBashford_4'
-		elif(func == methods.adamMoulton):
-			return 'adamMoulton'
-		elif(func == methods.DIFINV):
+		elif(func == methods.adamMoulton_2):
+			return 'adamMoulton_2'
+		elif(func == methods.adamMoulton_3):
+			return 'adamMoulton_3'
+		elif(func == methods.adamMoulton_4):
+			return 'adamMoulton_4'
+		elif(func == methods.difInv):
 			return 'defInv'
 		else:
 			return ''
@@ -81,6 +107,24 @@ class MethodsType(Enum):
 				return 'adamBashford_3'
 			if(degree == 4):
 				return 'adamBashford_4'
+		elif(enum == MethodsType.ADAMOULTON):
+			if(degree == 0):
+				return 'adamMoulton_0'
+			if(degree == 2):
+				return 'adamMoulton_2'
+			if(degree == 3):
+				return 'adamMoulton_3'
+			if(degree == 4):
+				return 'adamMoulton_4'
+		elif(enum == MethodsType.DIFINV):
+			if(degree == 0):
+				return 'defInv'
+			if(degree == 2):
+				return 'defInv'
+			if(degree == 3):
+				return 'defInv'
+			if(degree == 4):
+				return 'defInv'
 
 	def getTypeByFunction(func):
 		if(func == methods.euler):
@@ -93,7 +137,7 @@ class MethodsType(Enum):
 			return MethodsType.RUNGEKUTTA
 		elif(func == methods.adamBashford_2 or func == methods.adamBashford_3 or func == methods.adamBashford_4):
 			return MethodsType.ADAMBASHFORD
-		elif(func == methods.adamMoulton):
+		elif(func == methods.adamMoulton_2 or func == methods.adamMoulton_3 or func == methods.adamMoulton_4):
 			return MethodsType.ADAMOULTON
 		elif(func == methods.DIFINV):
 			return MethodsType.DIFINV

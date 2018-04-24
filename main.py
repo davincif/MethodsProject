@@ -140,7 +140,7 @@ def methodMenu():
 		if(not type is None or degree == None):
 			break
 
-	if(type == MethodsType.ADAMBASHFORD or type == MethodsType.ALL):
+	if(type == MethodsType.ADAMBASHFORD or type == MethodsType.ADAMOULTON or type == MethodsType.DIFINV or type == MethodsType.ALL):
 		while True:
 				print('what the degree? (-1 for all)')
 				print('\ndegree = ', end='')
@@ -171,7 +171,7 @@ def runChoices(dict2save, method, method2, degree, steps, h, y0, yy0):
 
 def getChosenMethod(userStr, valid):
 	type = None
-	degree = None
+	degree = 0
 
 	try:
 		userStr = int(float(userStr))

@@ -129,9 +129,35 @@ def adamBashford_4(qtd, h, hi, yhi, meth):
 
 	return table
 
-def adamMoulton():
+def adamMoulton_2(qtd, h, hi, yhi):
 	pass
+
+def adamMoulton_3(qtd, h, hi, yhi):
+	pass
+
+def adamMoulton_4(qtd, h, hi, yhi):
+	lastp = [x[1] for x in adamBashford_4(4, h, hi, yhi, rungeKutta)] #lastp == last points
+	yn = yhi
+	tn = hi
+	table = [[tn, lastp[0]], [tn+h, lastp[1]], [tn+2*h, lastp[2]], [tn+3*h, lastp[3]]]
+	tn += 3*h
+	qtd -= 4
+	while(qtd > 0):
+		yn = difeq(tn + h, lastp[3])
+		lastp[0] = lastp[1]
+		lastp[1] = lastp[2]
+		lastp[2] = lastp[3]
+		lastp[3] = yn
+		tn += h
+		qtd -= 1
+		table.append([tn, float(yn)])
+		lastp = [x[1] for x in adamBashford_4(4, h, hi, yhi, lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=table))]
+
+	return table
 
 def difInv():
 	#Diferenciação Inversa
 	pass
+
+def __methodMock(qtd, h, hi, yhi, list2return):
+	return list2return
