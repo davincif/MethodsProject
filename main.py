@@ -66,6 +66,8 @@ def readEntry():
 					Y = symb
 				elif(symb == T):
 					T = symb
+				elif(type(symb) == type(Y)):
+					raise Exception("there must be only t's and y's as variables in the expression")
 
 				if(type(symb) == type(Y)):
 					qtdvar += 1
