@@ -135,23 +135,33 @@ def adamMoulton_2(qtd, h, hi, yhi):
 def adamMoulton_3(qtd, h, hi, yhi):
 	pass
 
+# lastp[3] = lastp[3] + h*(251*difeq(tn3, lastp[3]) + 646*difeq(tn2, lastp[2]) - 264*difeq(tn1, lastp[1]) + 106*difeq(tn0, lastp[0]))/720
 def adamMoulton_4(qtd, h, hi, yhi):
 	lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, rungeKutta)] #lastp == last points
 	yn = yhi
-	tn = hi
-	table = [[tn, lastp[0]], [tn+h, lastp[1]], [tn+2*h, lastp[2]], [tn+3*h, lastp[3]]]
-	tn += 4*h
+	tn0 = hi
+	tn1 = tn0+h
+	tn2 = tn1+h
+	tn3 = tn2+h
+	tn4 = tn3+h
+	table = [[tn0, lastp[0]], [tn1, lastp[1]], [tn2, lastp[2]], [tn3, lastp[3]], [tn4, lastp[4]]]
 	qtd -= 4
 	while(qtd > 0):
-		lastp[4] = difeq(tn, lastp[4])
+		lastp[4] = lastp[3] + h*(9*difeq(tn3+h, lastp[4]) + 19*difeq(tn3, lastp[3] - 5*difeq(tn2, lastp[2]) + difeq(tn2, lastp[2])))/24
 		lastp[0] = lastp[1]
 		lastp[1] = lastp[2]
 		lastp[2] = lastp[3]
 		lastp[3] = lastp[4]
-		tn += h
+		tn0 = tn1
+		tn1 = tn2
+		tn2 = tn3
+		tn3 = tn4
+		tn4 += h
 		qtd -= 1
-		table.append([tn, float(lastp[4])])
+		table.append([tn4, float(lastp[4])])
+		print("lastp", lastp)
 		lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=table))]
+		print("lastp", lastp, end='\n\n')
 
 	return table
 
