@@ -155,7 +155,7 @@ def methodMenu():
 					print("Try again", end='\n\n')
 
 		op, valid = printMenu([MethodsType.ALL, MethodsType.ADAMBASHFORD, 'quit'])
-		type2 = getChosenMethod(op, valid)
+		type2, trash = getChosenMethod(op, valid)
 
 	return type, degree, type2
 
@@ -171,6 +171,7 @@ def runChoices(dict2save, method, method2, degree, steps, h, y0, yy0):
 
 def getChosenMethod(userStr, valid):
 	type = None
+	degree = None
 
 	try:
 		userStr = int(float(userStr))
