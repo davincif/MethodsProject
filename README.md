@@ -26,6 +26,6 @@ python main.py
 <hr>
 <br>
 
-PS.: the RUNME script was tested only in **bash**, so if you willing to try it in another shell, you're on your own.
+PS.: the RUNME script was tested only in **bash**, so if you're willing to try it in another shell, you're on your own.
 
 PPS.: Changes are that the  **ksh** shell would work just fine too.
