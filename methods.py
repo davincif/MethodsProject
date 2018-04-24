@@ -136,22 +136,22 @@ def adamMoulton_3(qtd, h, hi, yhi):
 	pass
 
 def adamMoulton_4(qtd, h, hi, yhi):
-	lastp = [x[1] for x in adamBashford_4(4, h, hi, yhi, rungeKutta)] #lastp == last points
+	lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, rungeKutta)] #lastp == last points
 	yn = yhi
 	tn = hi
 	table = [[tn, lastp[0]], [tn+h, lastp[1]], [tn+2*h, lastp[2]], [tn+3*h, lastp[3]]]
-	tn += 3*h
+	tn += 4*h
 	qtd -= 4
 	while(qtd > 0):
-		yn = difeq(tn + h, lastp[3])
+		lastp[4] = difeq(tn, lastp[4])
 		lastp[0] = lastp[1]
 		lastp[1] = lastp[2]
 		lastp[2] = lastp[3]
-		lastp[3] = yn
+		lastp[3] = lastp[4]
 		tn += h
 		qtd -= 1
-		table.append([tn, float(yn)])
-		lastp = [x[1] for x in adamBashford_4(4, h, hi, yhi, lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=table))]
+		table.append([tn, float(lastp[4])])
+		lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=table))]
 
 	return table
 
