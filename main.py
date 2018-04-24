@@ -87,7 +87,7 @@ def readEntry():
 	while True:
 		try:
 			print('Type the Inicial Value')
-			print('initial y = ', end='')
+			print('initial t = ', end='')
 			y0 = float(input())
 			break
 		except Exception as exp:
@@ -135,7 +135,7 @@ def methodMenu():
 
 	while True:
 		op, valid = printMenu([])
-		type = getChosenMethod(op, valid)
+		type, degree = getChosenMethod(op, valid)
 
 		if(not type is None or degree == None):
 			break
@@ -227,7 +227,7 @@ def getChosenMethod(userStr, valid):
 			print('Method not recognized, check your typing.')
 			print("Try again", end='\n\n')
 
-	return type
+	return type, degree
 
 def printMenu(notshow):
 	valid = []
