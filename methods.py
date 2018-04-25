@@ -16,7 +16,7 @@ def euler(qtd, h, hi, yhi):
 	table = []
 	while(qtd > 0):
 		table.append([tn, float(yn)])
-		yn = (yn + h*difeq(tn, yn)).evalf()
+		yn = yn + h*difeq(tn, yn)
 		tn += h
 		qtd -= 1
 
@@ -115,17 +115,16 @@ def adamBashford_4(qtd, h, hi, yhi, meth):
 	table = [[tn0, lastp[0]], [tn1, lastp[1]], [tn2, lastp[2]], [tn3, lastp[3]]]
 	qtd -= 4
 	while(qtd > 0):
-		yn = lastp[3] + h*(55*difeq(tn3, lastp[3]) - 59*difeq(tn2, lastp[2]) + 37*difeq(tn1, lastp[1]) - 9*difeq(tn0, lastp[0]))/24
+		lastp[3] = lastp[3] + h*(55*difeq(tn3, lastp[3]) - 59*difeq(tn2, lastp[2]) + 37*difeq(tn1, lastp[1]) - 9*difeq(tn0, lastp[0]))/24
 		lastp[0] = lastp[1]
 		lastp[1] = lastp[2]
 		lastp[2] = lastp[3]
-		lastp[3] = yn
 		tn0 = tn1
 		tn1 = tn2
 		tn2 = tn3
 		tn3 += h
 		qtd -= 1
-		table.append([tn3, float(yn)])
+		table.append([tn3, float(lastp[3])])
 
 	return table
 
@@ -137,31 +136,26 @@ def adamMoulton_3(qtd, h, hi, yhi):
 
 # lastp[3] = lastp[3] + h*(251*difeq(tn3, lastp[3]) + 646*difeq(tn2, lastp[2]) - 264*difeq(tn1, lastp[1]) + 106*difeq(tn0, lastp[0]))/720
 def adamMoulton_4(qtd, h, hi, yhi):
-	lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, rungeKutta)] #lastp == last points
-	yn = yhi
 	tn0 = hi
 	tn1 = tn0+h
 	tn2 = tn1+h
 	tn3 = tn2+h
-	tn4 = tn3+h
-	table = [[tn0, lastp[0]], [tn1, lastp[1]], [tn2, lastp[2]], [tn3, lastp[3]], [tn4, lastp[4]]]
+	table = rungeKutta(5, h, hi, yhi) #lastp == last points
 	qtd -= 4
 	while(qtd > 0):
-		lastp[4] = lastp[3] + h*(9*difeq(tn3+h, lastp[4]) + 19*difeq(tn3, lastp[3] - 5*difeq(tn2, lastp[2]) + difeq(tn2, lastp[2])))/24
-		lastp[0] = lastp[1]
-		lastp[1] = lastp[2]
-		lastp[2] = lastp[3]
-		lastp[3] = lastp[4]
+		ni = len(table)
+		print(table)
+		input()
+		table[ni-1][1] = table[ni-2][1] + h*(9*difeq(tn3, table[ni-1][1]) + 19*difeq(tn2, table[ni-2][1] - 5*difeq(tn1, table[ni-3][1]) + difeq(tn0, table[ni-4][1])))/24
+		print("table[ni-1][1]", table[ni-1][1])
 		tn0 = tn1
 		tn1 = tn2
 		tn2 = tn3
-		tn3 = tn4
-		tn4 += h
+		tn3 += h
 		qtd -= 1
-		table.append([tn4, float(lastp[4])])
-		print("lastp", lastp)
-		lastp = [x[1] for x in adamBashford_4(5, h, hi, yhi, lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=table))]
-		print("lastp", lastp, end='\n\n')
+		# print("table", table)
+		table = adamBashford_4(5, h, tn0, table[1], lambda qtd, h, hi, yhi : __methodMock(qtd, h, hi, yhi, list2return=[table[x][1] for x in range(ni-4, ni)]))
+		# print("table", table, end='\n\n')
 
 	return table
 
@@ -170,4 +164,7 @@ def difInv():
 	pass
 
 def __methodMock(qtd, h, hi, yhi, list2return):
-	return list2return
+	if(type(list2return[0]) is list):
+		return list2return
+	else:
+		return [[-1, x] for x in list2return]
